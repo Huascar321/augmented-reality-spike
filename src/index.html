@@ -6,16 +6,86 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-  <!-- we import arjs version without NFT but with marker + location based support -->
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+  <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js'></script>
+  <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js'></script>
 </head>
 <body>
-  <a-scene embedded arjs>
-    <a-marker type="pattern" url="https://raw.githubusercontent.com/flippedcoder/blog-examples/main/clear-world/pattern-check.patt">
-        <a-sphere radius="1" color="#EF2D5E"></a-sphere>
-    </a-marker>
-    <a-entity camera></a-entity>
+  <app-root></app-root>
+  <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
+    <a-camera gps-new-camera='gpsMinDistance: 5'></a-camera>
   </a-scene>
+  <script>
+    console.log('debug #0');
+    window.onload = () => {
+      console.log('debug #1');
+  let testEntityAdded = false;
+
+  const el = document.querySelector("[gps-new-camera]");
+
+  el.addEventListener("gps-camera-update-position", e => {
+      if(!testEntityAdded) {
+        console.log('debug #2');
+          alert(`Got first GPS position: lon ${e.detail.position.longitude} lat ${e.detail.position.latitude}`);
+          // Add a box to the north of the initial GPS position
+          const entity = document.createElement("a-box");
+          const secondEntity = document.createElement('a-cylinder');
+          const thirdEntity = document.createElement('a-sphere');
+          const fourthEntity = document.createElement('a-cone');
+
+          entity.setAttribute("scale", {
+              x: 20,
+              y: 20,
+              z: 20
+          });
+          secondEntity.setAttribute('scale', {
+            x: 20,
+            y: 20,
+            z: 20
+          });
+          thirdEntity.setAttribute('scale', {
+            x: 20,
+            y: 20,
+            z: 20
+          });
+          fourthEntity.setAttribute('scale', {
+            x: 20,
+            y: 20,
+            z: 20
+          });
+
+          entity.setAttribute('material', { color: 'red' } );
+          entity.setAttribute('gps-new-entity-place', {
+              latitude: e.detail.position.latitude + 0.001,
+              longitude: e.detail.position.longitude
+          });
+
+          secondEntity.setAttribute('material', { color: 'green' });
+          secondEntity.setAttribute('gps-new-entity-place', {
+            latitude: e.detail.position.latitude - 0.001,
+            longitude: e.detail.position.longitude
+          });
+
+          thirdEntity.setAttribute('material', { color: 'yellow' });
+          thirdEntity.setAttribute('gps-new-entity-place', {
+            latitude: e.detail.position.latitude,
+            longitude: e.detail.position.longitude + 0.001
+          });
+
+          fourthEntity.setAttribute('material', { color: 'magenta' });
+          fourthEntity.setAttribute('gps-new-entity-place', {
+            latitude: e.detail.position.latitude,
+            longitude: e.detail.position.longitude - 0.001
+          });
+
+          document.querySelector("a-scene").appendChild(entity);
+          document.querySelector('a-scene').appendChild(secondEntity);
+          document.querySelector('a-scene').appendChild(thirdEntity);
+          document.querySelector('a-scene').appendChild(fourthEntity);
+      }
+      testEntityAdded = true;
+  });
+};
+  </script>
 </body>
 </html>
